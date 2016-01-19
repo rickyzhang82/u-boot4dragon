@@ -131,6 +131,13 @@ config PINCTRL_SANDBOX
 	  actually does nothing but print debug messages when pinctrl
 	  operations are invoked.
 
+config PINCTRL_SPMI_GPIO
+	bool "Support SPMI pin control driver"
+	depends on SPMI
+	help
+	  This enables pinctrl driver for gpios on PMIC devices residing on 
+	  SPMI bus.
+
 endif
 
 source "drivers/pinctrl/uniphier/Kconfig"

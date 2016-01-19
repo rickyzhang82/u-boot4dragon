@@ -60,13 +60,11 @@ config MSM_GPIO
 	  - APQ8016
 	  - MSM8916
 
-config PM8916_GPIO
+config PM8916_PWRKEY
 	bool "Qualcomm PM8916 PMIC GPIO/keypad driver"
 	depends on DM_GPIO && PMIC_PM8916
 	help
-	  Support for GPIO pins and power/reset buttons found on
-	  Qualcomm PM8916 PMIC.
-	  Default name for GPIO bank is "pm8916".
+	  Support for power/reset buttons found on Qualcomm PM8916 PMIC.
 	  Power and reset buttons are placed in "pm8916_key" bank and
           have gpio numbers 0 and 1 respectively.
 

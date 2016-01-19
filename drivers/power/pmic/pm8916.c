@@ -43,13 +43,14 @@ static int pm8916_read(struct udevice *dev, uint reg, uint8_t *buff, int len)
 {
 	struct pm8916_priv *priv = dev_get_priv(dev);
 	int val;
+	printf("%s():%d\n", __FUNCTION__, __LINE__);
 
 	if (len != 1)
 		return -EINVAL;
-
+printf("%s():%d\n", __FUNCTION__, __LINE__);
 	val = spmi_reg_read(dev->parent, priv->usid,
 			    (reg & PID_MASK) >> PID_SHIFT, reg & REG_MASK);
-
+printf("%s():%d\n", __FUNCTION__, __LINE__);
 	if (val < 0)
 		return val;
 	*buff = val;

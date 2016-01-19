@@ -100,39 +100,39 @@ static int msm_spmi_read(struct udevice *dev, int usid, int pid, int off)
 	struct msm_spmi_priv *priv = dev_get_priv(dev);
 	unsigned channel;
 	uint32_t reg = 0;
-
+printf("%s():%d\n", __FUNCTION__, __LINE__);
 	if (usid >= SPMI_MAX_SLAVES)
 		return -EIO;
 	if (pid >= SPMI_MAX_PERIPH)
 		return -EIO;
-
+printf("%s():%d %d %d %p\n", __FUNCTION__, __LINE__, usid, pid, priv);
 	channel = priv->channel_map[usid][pid];
-
+printf("%s():%d %p\n", __FUNCTION__, __LINE__, priv->spmi_obs);
 	/* Disable IRQ mode for the current channel*/
 	writel(0x0, priv->spmi_obs + SPMI_CH_OFFSET(channel) + SPMI_REG_CONFIG);
-
+printf("%s():%d\n", __FUNCTION__, __LINE__);
 	/* Prepare read command */
 	reg |= SPMI_CMD_EXT_REG_READ_LONG << SPMI_CMD_OPCODE_SHIFT;
 	reg |= (usid << SPMI_CMD_SLAVE_ID_SHIFT);
 	reg |= (pid << SPMI_CMD_ADDR_SHIFT);
 	reg |= (off << SPMI_CMD_ADDR_OFFSET_SHIFT);
 	reg |= 1; /* byte count */
-
+printf("%s():%d\n", __FUNCTION__, __LINE__);
 	/* Request read */
 	writel(reg, priv->spmi_obs + SPMI_CH_OFFSET(channel) + SPMI_REG_CMD0);
-
+printf("%s():%d\n", __FUNCTION__, __LINE__);
 	/* Wait till CMD DONE status */
 	reg = 0;
 	while (!reg) {
 		reg = readl(priv->spmi_obs + SPMI_CH_OFFSET(channel) +
 			    SPMI_REG_STATUS);
 	}
-
+printf("%s():%d\n", __FUNCTION__, __LINE__);
 	if (reg ^ SPMI_STATUS_DONE) {
 		printf("SPMI read failure.\n");
 		return -EIO;
 	}
-
+printf("%s():%d\n", __FUNCTION__, __LINE__);
 	/* Read the data */
 	return readl(priv->spmi_obs + SPMI_CH_OFFSET(channel) +
 		     SPMI_REG_RDATA) & 0xFF;
@@ -158,6 +158,8 @@ static int msm_spmi_probe(struct udevice *dev)
 							  parent->of_offset,
 							  dev->of_offset, "reg",
 							  2, NULL);
+	printf("Probed spmi arb %p, core %p obs %p\n", priv->arb_chnl, priv->spmi_core, priv->spmi_obs);
+
 	if (priv->arb_chnl == FDT_ADDR_T_NONE ||
 	    priv->spmi_core == FDT_ADDR_T_NONE ||
 	    priv->spmi_obs == FDT_ADDR_T_NONE)

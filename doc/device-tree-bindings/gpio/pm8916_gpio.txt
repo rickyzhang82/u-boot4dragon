@@ -23,6 +23,24 @@ pmic_gpios: gpios@c000 {
 	gpio-count = <4>;
 	#gpio-cells = <2>;
 	gpio-bank-name="pmic";
+
+
+	usb_hub_reset_pm: usb_hub_reset_pm {
+		pinconf {
+			pins = "gpio2";
+			function = PMIC_GPIO_FUNC_NORMAL;
+			output-low;
+		};
+	};
+
+	usb_sw_sel_pm: usb_sw_sel_pm {
+		pinconf {
+			pins = "gpio3";
+			function = PMIC_GPIO_FUNC_NORMAL;
+			power-source = <PM8916_GPIO_VPH>;
+			input-disable;
+		};
+	};
 };
 
 

@@ -1,5 +1,5 @@
 /*
- * Qualcomm pm8916 pmic gpio driver - part of Qualcomm PM8916 PMIC
+ * Qualcomm spmi gpio driver - part of Qualcomm PMIC
  *
  * (C) Copyright 2015 Mateusz Kulikowski <mateusz.kulikowski@gmail.com>
  *
@@ -13,6 +13,7 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <linux/bitops.h>
+#include <dm/pinctrl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -52,7 +53,7 @@ DECLARE_GLOBAL_DATA_PTR;
 struct pm8916_gpio_bank {
 	uint16_t pid; /* Peripheral ID on SPMI bus */
 };
-
+#if 0
 static int pm8916_gpio_set_direction(struct udevice *dev, unsigned offset,
 				     bool input, int value)
 {
@@ -167,32 +168,82 @@ static const struct dm_gpio_ops pm8916_gpio_ops = {
 	.set_value		= pm8916_gpio_set_value,
 	.get_function		= pm8916_gpio_get_function,
 };
+#endif
+static const char * const pm8916_pins[] = {
+	"gpio0", "gpio1", "gpio2", "gpio3",
+};
+
+static int pm8916_get_pins_count(struct udevice *dev)
+{
+	return ARRAY_SIZE(pm8916_pins);
+}
+
+static const char *pm8916_get_pin_name(struct udevice *dev, unsigned selector)
+{
+	return pm8916_pins[selector];
+}
+
+static int pm8916_get_functions_count(struct udevice *dev)
+{
+	return 1;
+}
+
+static const char *pm8916_get_function_name(struct udevice *dev,
+					    unsigned selector)
+{
+	return "normal";
+}
+
+const struct pinctrl_ops pm8916_pinctrl_ops = {
+	.get_pins_count = pm8916_get_pins_count,
+	.get_pin_name = pm8916_get_pin_name,
+	.get_functions_count = pm8916_get_functions_count,
+	.get_function_name = pm8916_get_function_name,
+	.set_state = pinctrl_generic_set_state
+/*
+	.pinmux_set = sandbox_pinmux_set,
+	.pinmux_group_set = sandbox_pinmux_group_set,
+	.pinconf_num_params = ARRAY_SIZE(sandbox_conf_params),
+	.pinconf_params = sandbox_conf_params,
+	.pinconf_set = sandbox_pinconf_set,
+	.pinconf_group_set = sandbox_pinconf_group_set,
+	,*/
+};
 
 static int pm8916_gpio_probe(struct udevice *dev)
 {
 	struct pm8916_gpio_bank *priv = dev_get_priv(dev);
 	int reg;
 
+	printf("pm8916_probe()\n");
 	priv->pid = dev_get_addr(dev);
+	printf("%s():%d %p %x\n", __FUNCTION__, __LINE__, priv, priv->pid);
 	if (priv->pid == FDT_ADDR_T_NONE)
 		return -EINVAL;
 
+	return -EINVAL;
+	printf("%s():%d %p %s\n", __FUNCTION__, __LINE__, dev->parent, dev->parent->name);
 	/* Do a sanity check */
 	reg = pmic_reg_read(dev->parent, priv->pid + REG_TYPE);
+	printf("%s():%d\n", __FUNCTION__, __LINE__);
 	if (reg != 0x10)
 		return -ENODEV;
-
+printf("%s():%d\n", __FUNCTION__, __LINE__);
 	reg = pmic_reg_read(dev->parent, priv->pid + REG_SUBTYPE);
+	printf("%s():%d\n", __FUNCTION__, __LINE__);
 	if (reg != 0x5)
 		return -ENODEV;
-
+printf("%s():%d\n", __FUNCTION__, __LINE__);
 	return 0;
 }
 
 static int pm8916_gpio_ofdata_to_platdata(struct udevice *dev)
 {
+	return 0;
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 
+
+	printf("pm8916_ofdata()\n");
 	uc_priv->gpio_count = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
 					     "gpio-count", 0);
 	uc_priv->bank_name = fdt_getprop(gd->fdt_blob, dev->of_offset,
@@ -210,93 +261,11 @@ static const struct udevice_id pm8916_gpio_ids[] = {
 
 U_BOOT_DRIVER(gpio_pm8916) = {
 	.name	= "gpio_pm8916",
-	.id	= UCLASS_GPIO,
+	.id	= UCLASS_PINCTRL,
 	.of_match = pm8916_gpio_ids,
 	.ofdata_to_platdata = pm8916_gpio_ofdata_to_platdata,
 	.probe	= pm8916_gpio_probe,
-	.ops	= &pm8916_gpio_ops,
-	.priv_auto_alloc_size = sizeof(struct pm8916_gpio_bank),
-};
-
-
-/* Add pmic buttons as GPIO as well - there is no generic way for now */
-#define PON_INT_RT_STS                        0x10
-#define KPDPWR_ON_INT_BIT                     0
-#define RESIN_ON_INT_BIT                      1
-
-static int pm8941_pwrkey_get_function(struct udevice *dev, unsigned offset)
-{
-	return GPIOF_INPUT;
-}
-
-static int pm8941_pwrkey_get_value(struct udevice *dev, unsigned offset)
-{
-	struct pm8916_gpio_bank *priv = dev_get_priv(dev);
-
-	int reg = pmic_reg_read(dev->parent, priv->pid + PON_INT_RT_STS);
-
-	if (reg < 0)
-		return 0;
-
-	switch (offset) {
-	case 0: /* Power button */
-		return (reg & BIT(KPDPWR_ON_INT_BIT)) != 0;
-		break;
-	case 1: /* Reset button */
-	default:
-		return (reg & BIT(RESIN_ON_INT_BIT)) != 0;
-		break;
-	}
-}
-
-static const struct dm_gpio_ops pm8941_pwrkey_ops = {
-	.get_value		= pm8941_pwrkey_get_value,
-	.get_function		= pm8941_pwrkey_get_function,
-};
-
-static int pm8941_pwrkey_probe(struct udevice *dev)
-{
-	struct pm8916_gpio_bank *priv = dev_get_priv(dev);
-	int reg;
-
-	priv->pid = dev_get_addr(dev);
-	if (priv->pid == FDT_ADDR_T_NONE)
-		return -EINVAL;
-
-	/* Do a sanity check */
-	reg = pmic_reg_read(dev->parent, priv->pid + REG_TYPE);
-	if (reg != 0x1)
-		return -ENODEV;
-
-	reg = pmic_reg_read(dev->parent, priv->pid + REG_SUBTYPE);
-	if (reg != 0x1)
-		return -ENODEV;
-
-	return 0;
-}
-
-static int pm8941_pwrkey_ofdata_to_platdata(struct udevice *dev)
-{
-	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
-
-	uc_priv->gpio_count = 2;
-	if (uc_priv->bank_name == NULL)
-		uc_priv->bank_name = "pm8916_key";
-
-	return 0;
-}
-
-static const struct udevice_id pm8941_pwrkey_ids[] = {
-	{ .compatible = "qcom,pm8916-pwrkey" },
-	{ }
-};
-
-U_BOOT_DRIVER(pwrkey_pm8941) = {
-	.name	= "pwrkey_pm8916",
-	.id	= UCLASS_GPIO,
-	.of_match = pm8941_pwrkey_ids,
-	.ofdata_to_platdata = pm8941_pwrkey_ofdata_to_platdata,
-	.probe	= pm8941_pwrkey_probe,
-	.ops	= &pm8941_pwrkey_ops,
+	.ops	= &pm8916_pinctrl_ops,
+//	.ops	= &pm8916_gpio_ops,
 	.priv_auto_alloc_size = sizeof(struct pm8916_gpio_bank),
 };
