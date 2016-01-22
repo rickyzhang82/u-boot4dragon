@@ -83,6 +83,9 @@
 #define CONFIG_USB_ETHER_MCS7830
 #define CONFIG_USB_ETHER_SMSC95XX
 
+/*File System*/
+#define CONFIG_CMD_EXT4 /* EXT4 support */
+
 /* Libraries  */
 #define CONFIG_MD5
 
@@ -135,8 +138,8 @@
 #define CONFIG_NFSBOOTCOMMAND ""
 #define CONFIG_ROOTPATH "/home/nfs/dragonboard"
 #define CONFIG_BOOTFILE "dragonboard/linux.itb"
-#define CONFIG_BOOTCOMMAND "usb start && tftp && usb stop && bootm"
-#define CONFIG_BOOTARGS "console=ttyMSM0,115200n8"
+#define CONFIG_BOOTCOMMAND "usb start; usb storage; ext4load usb 0:1 0x90000000 /boot/uImage; ext4load usb 0:1 0x89000000 /boot/apq8016-sbc.dtb; bootm 0x90000000 – 0x89000000"
+#define CONFIG_BOOTARGS "root=UUID=ae5fa761-95be-469b-b7dc-a355d080ed23 rw rootwait console=tty0 console=ttyMSM0,115200n8 rootfs=ext4 noinitrd selinux=0"
 
 /* Does what recovery does */
 #define REFLASH(file, part) \
