@@ -235,11 +235,12 @@ static int abortboot_normal(int bootdelay)
 	 * Don't check if bootdelay < 0
 	 */
 	if (bootdelay >= 0) {
-		if (tstc()) {	/* we got a key press	*/
+		if (tstc() && 0) {	/* we got a key press	*/
 			(void) getc();  /* consume input	*/
 			puts("\b\b\b 0");
 			abort = 1;	/* don't auto boot	*/
 		}
+      printf("Escape CONFIG_ZERO_BOOTDELAY_CHECK: abort(%d)\n", abort);
 	}
 #endif
 
