@@ -130,7 +130,8 @@
 #define CONFIG_BOOTP_BOOTFILESIZE
 
 /* Environment - Boot*/
-#define CONFIG_BOOTDELAY		-1	/* autoboot after 5 seconds */
+#define CONFIG_BOOTDELAY 0
+#define CONFIG_ZERO_BOOTDELAY_CHECK
 
 #define CONFIG_SERVERIP	10.0.0.1
 #define CONFIG_IPADDR	10.0.0.2
@@ -138,7 +139,7 @@
 #define CONFIG_NFSBOOTCOMMAND ""
 #define CONFIG_ROOTPATH "/home/nfs/dragonboard"
 #define CONFIG_BOOTFILE "dragonboard/linux.itb"
-#define CONFIG_BOOTCOMMAND "usb start; usb storage; ext4load usb 0:1 0x90000000 /boot/uImage; ext4load usb 0:1 0x89000000 /boot/apq8016-sbc.dtb; bootm 0x90000000 – 0x89000000"
+#define CONFIG_BOOTCOMMAND "usb start; usb storage; ext4load usb 0:1 0x90000000 /boot/uImage; ext4load usb 0:1 0x89000000 /boot/apq8016-sbc.dtb; usb stop;  bootm 0x90000000 - 0x89000000"
 #define CONFIG_BOOTARGS "root=UUID=ae5fa761-95be-469b-b7dc-a355d080ed23 rw rootwait console=tty0 console=ttyMSM0,115200n8 rootfs=ext4 noinitrd selinux=0"
 
 /* Does what recovery does */
