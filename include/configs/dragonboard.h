@@ -133,82 +133,8 @@
 #define CONFIG_BOOTDELAY 0
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 
-/*
-#define CONFIG_SERVERIP	10.0.0.1
-#define CONFIG_IPADDR	10.0.0.2
-#define CONFIG_NETMASK	255.255.255.0
-#define CONFIG_NFSBOOTCOMMAND ""
-#define CONFIG_ROOTPATH "/home/nfs/dragonboard"
-#define CONFIG_BOOTFILE "dragonboard/linux.itb"
-*/
-#define CONFIG_BOOTCOMMAND "usb start; usb storage; ext4load usb 0:1 0x90000000 /boot/uImage; ext4load usb 0:1 0x89000000 /boot/apq8016-sbc.dtb; bootm 0x90000000 - 0x89000000;"
-/*#define CONFIG_BOOTARGS "root=UUID=ae5fa761-95be-469b-b7dc-a355d080ed23 rw rootwait console=ttyMSM0,115200n8 rootfs=ext4 noinitrd"*/
-#define CONFIG_BOOTARGS "root=/dev/disk/by-partlabel/rootfs rw rootwait console=ttyMSM0,115200n8 noinitrd selinux=0"
-
-/* Does what recovery does */
-#define REFLASH(file, part) \
-"part start mmc 0 "#part" start && "\
-"part size mmc 0 "#part" size && "\
-"tftp $loadaddr "#file" &&" \
-"mmc write $loadaddr $start $size &&"
-
-
-#define CONFIG_ENV_REFLASH \
-"mmc dev 0 &&"\
-"usb start &&"\
-"tftp $loadaddr dragonboard/rescue/gpt_both0.bin && mmc write $loadaddr 0 43 &&" \
-"mmc rescan &&"\
-REFLASH(dragonboard/rescue/NON-HLOS.bin,1)\
-REFLASH(dragonboard/rescue/sbl1.mbn,2)\
-REFLASH(dragonboard/rescue/rpm.mbn,3)\
-REFLASH(dragonboard/rescue/tz.mbn,4)\
-REFLASH(dragonboard/rescue/hyp.mbn,5)\
-REFLASH(dragonboard/rescue/sec.dat,6)\
-REFLASH(dragonboard/rescue/emmc_appsboot.mbn,7)\
-REFLASH(dragonboard/u-boot.img,8)\
-"usb stop &&"\
-"echo Reflash completed"
-
-#define CONFIG_UBOOT_REFLASH \
-"mmc dev 0 &&"\
-"usb start &&"\
-"part start mmc 0 8 start && "\
-"setenv size 0x800  &&"\
-"tftp $loadaddr dragonboard/u-boot.img &&" \
-"mmc write $loadaddr $start $size &&"\
-"usb stop &&"\
-"echo Reflash completed &&" \
-"reset"
-
-/* Environment */
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	"reflash="CONFIG_ENV_REFLASH"\0"\
-	"reflash_uboot="CONFIG_UBOOT_REFLASH"\0"\
-	"loadaddr=0x81000000\0" \
-	"fdt_high=0xffffffffffffffff\0" \
-	"initrd_high=0xffffffffffffffff\0" \
-	"linux_image=dragonboard/Image\0" \
-	"linux_addr=0x81000000\0"\
-	"fdt_image=dragonboard/apq8016-sbc.dtb\0" \
-	"fdt_addr=0x83000000\0"\
-	"ramdisk_addr=0x84000000\0"\
-	"ramdisk_image=dragonboard/initrd.img\0" \
-	"dl_uboot=tftp $loadaddr dragonboard/u-boot.img\0"\
-	"dl_kernel=tftp $linux_addr $linux_image " \
-		"&& tftp $fdt_addr $fdt_image\0"\
-	"dl_ramdisk=tftp $ramdisk_addr $ramdisk_image\0"\
-	"nboot_nord=usb start && run dl_kernel && usb stop && booti $linux_addr - $fdt_addr\0"\
-	"nboot_rd=usb start && run dl_kernel && run dl_ramdisk && booti $linux_addr $ramdisk_addr $fdt_addr\0"\
-	"test_network=usb start && dhcp; usb stop\0" \
-	"test_mmc=mmc dev 0 && mmc erase 71020 1 && mmc write 0xBD956000 71020 1"\
-		"&& mmc read $fdt_addr 71020 1 && cmp.b 0xBD956000 $fdt_addr 200\0"\
-	"test_sd=mmc dev 1 && mmc erase 61460 1 && mmc write 0xBD956000 61460 1"\
-		"&& mmc read $fdt_addr 61460 1 && cmp.b 0xBD956000 $fdt_addr 200\0" \
-	"test_sdm=mmc dev 1 && mmc erase 61460 8 && mmc write 0xBD956000 61460 8"\
-		"&& mmc read $fdt_addr 61460 8 && cmp.b 0xBD956000 $fdt_addr 1000\0"\
-	"test=run test_mmc && run test_sd && run test_sdm && run test_network && reset\0" \
-	"time_mmc=mmc dev 0; timer start; mmc read $loadaddr 0 5000; timer get\0"\
-	"time_sd=mmc dev 1; timer start; mmc read $loadaddr 0 5000; timer get\0"\
+#define CONFIG_BOOTCOMMAND "ext4load mmc 1:1 0x8A000000 /boot/uImage; ext4load mmc 1:1 0x89000000 /boot/apq8016-sbc.dtb; bootm 0x8A000000 - 0x89000000;"
+#define CONFIG_BOOTARGS "root=/dev/mmcblk0p1 rw rootwait console=ttyMSM0,115200n8 noinitrd selinux=0"
 
 #define CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_SIZE		0x1000
