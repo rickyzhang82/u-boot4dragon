@@ -133,7 +133,7 @@
 #define CONFIG_BOOTDELAY 0
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 
-#define CONFIG_BOOTCOMMAND "ext4load mmc 1:1 0x8A000000 /boot/uImage; ext4load mmc 1:1 0x89000000 /boot/apq8016-sbc.dtb; bootm 0x8A000000 - 0x89000000;"
+#define CONFIG_BOOTCOMMAND "ext4load mmc 1:1 0x84000000 /boot/Image; ext4load mmc 1:1 0x83000000 /boot/apq8016-sbc.dtb; booti 0x84000000 - 0x83000000;"
 #define CONFIG_BOOTARGS "root=/dev/mmcblk0p1 rw rootwait console=ttyMSM0,115200n8 noinitrd selinux=0"
 
 #define CONFIG_ENV_IS_NOWHERE
