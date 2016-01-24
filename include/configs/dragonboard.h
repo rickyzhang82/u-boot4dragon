@@ -133,17 +133,8 @@
 #define CONFIG_BOOTDELAY 0
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 
-/*
-#define CONFIG_SERVERIP	10.0.0.1
-#define CONFIG_IPADDR	10.0.0.2
-#define CONFIG_NETMASK	255.255.255.0
-#define CONFIG_NFSBOOTCOMMAND ""
-#define CONFIG_ROOTPATH "/home/nfs/dragonboard"
-#define CONFIG_BOOTFILE "dragonboard/linux.itb"
-*/
-#define CONFIG_BOOTCOMMAND "usb start; usb storage; ext4load usb 0:1 0x90000000 /boot/uImage; ext4load usb 0:1 0x89000000 /boot/apq8016-sbc.dtb; bootm 0x90000000 - 0x89000000;"
-/*#define CONFIG_BOOTARGS "root=UUID=ae5fa761-95be-469b-b7dc-a355d080ed23 rw rootwait console=ttyMSM0,115200n8 rootfs=ext4 noinitrd"*/
-#define CONFIG_BOOTARGS "root=/dev/disk/by-partlabel/rootfs rw rootwait console=ttyMSM0,115200n8 noinitrd selinux=0"
+#define CONFIG_BOOTCOMMAND "usb start; usb storage; ext4load usb 0:1 0x81000000 /boot/Image; ext4load usb 0:1 0x83000000 /boot/apq8016-sbc.dtb; usb stop; booti 0x81000000 - 0x83000000;"
+#define CONFIG_BOOTARGS "root=/dev/sda1 rw rootwait console=ttyMSM0,115200n8 rootfstype=ext4 noinitrd"
 
 /* Does what recovery does */
 #define REFLASH(file, part) \
